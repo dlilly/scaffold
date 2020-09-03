@@ -1,0 +1,32 @@
+# Other environment variables may be specified here for consumption by deployment.yaml;
+# Values.env and Values.secret are both exposed within the container as environment variables
+name: scaffold
+
+env:
+  EXPRESS_PORT: 3001
+
+replicaCount: 1
+
+image:
+  repository: gcr.io/ct-sales-207211/scaffold
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "kong"
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: scaffold.ctdemo.net
+      paths:
+        - /
+  tls:
+    - secretName: scaffold
+      hosts:
+      - scaffold.ctdemo.net
