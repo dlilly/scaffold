@@ -13,7 +13,9 @@ module.exports = {
     },
 
     log: (req, res, next) => {
-        logger.debug(`${req.method} ${req.path}`);
+        if (req.path.indexOf('/api/isready') === -1) {
+            logger.debug(`${req.method} ${req.path}`);
+        }
         next();
     }
 }
