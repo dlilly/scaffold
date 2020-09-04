@@ -8,7 +8,7 @@ if (fs.existsSync(`${__basedir}/config/vault.json`)) {
 nconf
   .argv()
   .env()
-  .file('localjson', `config/local.json`)
-  .file('envjson', `config/${process.env.NODE_ENV || 'development'}.json`)
-  .file('config/default.json');
+  .file('localjson', `${__basedir}/config/local.json`)
+  .file('envjson', `${__basedir}/config/${process.env.NODE_ENV || 'development'}.json`)
+  .file('${__basedir}/config/default.json');
 module.exports = nconf;
