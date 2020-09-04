@@ -7,6 +7,7 @@ const pluralize = require('pluralize')
 const utils = require('./utils')
 
 const subscriberManager = require('./subscriptionManager')
+const logger = require('ctvault/lib/logger')
 
 let routes = {
     extensions: [],
@@ -189,8 +190,9 @@ let compareProductDataModels = async (ct, service) =>
         )
     )
 
-module.exports = async sd => {
-    let serviceDir = `${sd}/services`
+module.exports = async serviceDir => {
+    logger.info(`Loading services directory at ${serviceDir}`)
+
     if (fs.existsSync(serviceDir)) {
         await Promise.all(utils.file.getSubdirectories(serviceDir).map(loadDir))
     }
