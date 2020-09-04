@@ -10,5 +10,5 @@ nconf
   .env()
   .file('localjson', `${__basedir}/config/local.json`)
   .file('envjson', `${__basedir}/config/${process.env.NODE_ENV || 'development'}.json`)
-  .file('${__basedir}/config/default.json');
+  .file(`${__basedir}/config/default.json`);
 module.exports = nconf;
