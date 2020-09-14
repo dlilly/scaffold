@@ -100,13 +100,12 @@ let loadDir = async dir => {
                     router.use(
                         obj.path,
                         express.static(
-                            `${__dirname}/../services/${service.key}/${obj.localPath}`
+                            `${localPath}/${obj.localPath}`
                         )
                     )
                     break
 
                 case 'mc':
-                    console.log(`mc /:projectKey/${obj.name}`)
                     router.use(
                         `/:projectKey/${obj.name}`,
                         express.static(
