@@ -15,10 +15,12 @@ let routes = {
     admin_microservices: [],
     subscriptions: [],
     ui: [],
-    storefront: []
+    storefront: [],
+    mc: []
 }
 
 let services = []
+let localPath = require('path').dirname(require.main.filename)
 
 router.getServices = () => services
 router.getService = key =>
@@ -27,6 +29,8 @@ router.getHooks = () => _.flatten(_.concat([], Object.values(routes)))
 router.getHook = key => _.ff(router.getHooks(), hook => hook.key === key)
 
 let loadDir = async dir => {
+    logger.info(`\tLoading services subdirectory at ${dir}`)
+
     let service = require(dir)
     service.key = _.last(dir.split('/'))
     services.push(service)
@@ -36,10 +40,13 @@ let loadDir = async dir => {
     }
 
     _.each(Object.keys(service), key => {
+        console.log(`serviceloader key [ ${key} ]`)
         if (key === 'asyncInit' || key === 'key' || key === 'model') {
             return
         }
-        let objects = service[key]
+        let objects = Array.isArray(service[key]) ? service[key] : [service[key]]
+        console.log(`serviceloader key [ ${JSON.stringify(objects)} ]`)
+
         _.each(objects, obj => {
             obj.type = key
             obj.service = service.key
@@ -100,7 +107,18 @@ let loadDir = async dir => {
                     )
                     break
 
+                case 'mc':
+                    console.log(`mc /:projectKey/${obj.name}`)
+                    router.use(
+                        `/:projectKey/${obj.name}`,
+                        express.static(
+                            `${localPath}/${obj.localPath}`
+                        )
+                    )
+                    break
+    
                 default:
+                    logger.warn(`Unknown service loader key [ ${key} ]`)
                     break
             }
         })
