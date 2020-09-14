@@ -1,6 +1,6 @@
 {
   "name": "@dlillyatx/scaffold",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "scaffold",
   "watch": {
     "dev": "src"
