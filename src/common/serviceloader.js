@@ -40,12 +40,10 @@ let loadDir = async dir => {
     }
 
     _.each(Object.keys(service), key => {
-        console.log(`serviceloader key [ ${key} ]`)
         if (key === 'asyncInit' || key === 'key' || key === 'model') {
             return
         }
         let objects = Array.isArray(service[key]) ? service[key] : [service[key]]
-        console.log(`serviceloader key [ ${JSON.stringify(objects)} ]`)
 
         _.each(objects, obj => {
             obj.type = key
