@@ -5,6 +5,7 @@ const _ = require('lodash')
 const CT = require('ctvault')
 const pluralize = require('pluralize')
 const utils = require('./utils')
+const pathresolver = require('path')
 
 const subscriberManager = require('./subscriptionManager')
 const logger = require('ctvault/lib/logger')
@@ -106,12 +107,9 @@ let loadDir = async dir => {
                     break
 
                 case 'mc':
-                    router.use(
-                        `/:projectKey/${obj.name}`,
-                        express.static(
-                            `${localPath}/${obj.localPath}`
-                        )
-                    )
+                    router.use(`/:projectKey/${obj.name}`, (req, res, next) => {
+                        return res.sendFile(pathresolver.resolve(`${localPath}/${obj.localPath}/index.html`))
+                    })
                     break
     
                 default:
