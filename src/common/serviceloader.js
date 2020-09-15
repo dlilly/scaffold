@@ -108,7 +108,7 @@ let loadDir = async dir => {
 
                 case 'mc':
                     router.use(`/:projectKey/${obj.name}`, (req, res, next) => {
-                        res.header('Content-Security-Policy', 'script-src avalara.ctdemo.net')
+                        res.header('Content-Security-Policy', 'script-src avalara.ctdemo.net connect-src avalara.ctdemo.net')
                         return res.sendFile(pathresolver.resolve(`${localPath}/${obj.localPath}/index.html`))
                     })
                     break
