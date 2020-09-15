@@ -107,10 +107,7 @@ let loadDir = async dir => {
                     break
 
                 case 'mc':
-                    router.use(`/:projectKey/${obj.name}`, (req, res, next) => {
-                        res.header('Content-Security-Policy', 'script-src avalara.ctdemo.net unsafe-inline connect-src avalara.ctdemo.net')
-                        return res.sendFile(pathresolver.resolve(`${localPath}/${obj.localPath}/index.html`))
-                    })
+                    router.use(`/:projectKey/${obj.name}`, express.static(`${localPath}/${obj.localPath}`))
                     break
     
                 default:
