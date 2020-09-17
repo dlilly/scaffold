@@ -23,7 +23,6 @@ let headers = {
   "X-XSS-Protection": "1; mode=block", 
   "X-Content-Type-Options": "nosniff", 
   "X-Frame-Options": "DENY", 
-  "Referrer-Policy": "same-origin", 
   "Content-Security-Policy": "\
     default-src 'self'; \
     script-src 'self' * 'unsafe-inline' 'unsafe-eval'; \
