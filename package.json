@@ -42,9 +42,11 @@
     "express": "^4.17.1",
     "firebase-admin": "^8.11.0",
     "fs-extra": "^8.1.0",
+    "locale-code": "^2.0.2",
     "lodash": "^4.17.20",
     "nconf": "^0.10.0",
     "pluralize": "^8.0.0",
+    "request-promise": "^4.2.6",
     "slugify": "^1.4.0"
   },
   "jest": {

@@ -5,7 +5,9 @@ const _ = require('lodash')
 const CT = require('ctvault')
 const pluralize = require('pluralize')
 const utils = require('./utils')
+const locale = require('locale-code')
 const pathresolver = require('path')
+const request = require('request-promise')
 
 const subscriberManager = require('./subscriptionManager')
 const logger = require('ctvault/lib/logger')
@@ -106,8 +108,42 @@ let loadDir = async dir => {
                     )
                     break
 
+                case "storefront":
+                    router.use('/:country/:language/*', (req, res, next) => {
+                        let path = `${localPath}/${obj.localPath}`
+                        if (locale.validateLanguageCode(`${req.params.language}-${req.params.country}`)) {
+                            return res.sendFile(pathresolver.resolve(`${path}/index.html`))
+                        }
+                        else {
+                            next()
+                        }
+                    })
+                    router.use('/', async (req, res, next) => {
+                        console.log(JSON.stringify(req.originalUrl))
+                        let path = `${localPath}/${obj.localPath}`
+
+                        if (req.path === '/') {
+                            res.redirect('/US/en/')
+                        }
+                        else {
+                            let l = pathresolver.resolve(`${path}${req.path}`)
+                            if (fs.existsSync(l)) {
+                                return res.sendFile(l)
+                            }
+                            else {
+                                next()
+                            }    
+                        }
+                    })
+                    break;
+    
                 case 'mc':
-                    router.use(`/:projectKey/${obj.name}`, express.static(`${localPath}/${obj.localPath}`))
+                    router.use(`/mc`, express.static(`${localPath}/${obj.localPath}`))
+                    router.use(`/:projectKey/${obj.name}`, (req, res) => {
+                        let indexPath = pathresolver.resolve(`${localPath}/${obj.localPath}/index.html`)
+                        console.log(indexPath)
+                        res.sendFile(indexPath)
+                    })
                     break
     
                 default:
