@@ -36,24 +36,22 @@ let headers = {
 
 module.exports = async servicesDir => {
   app.listen(port, async () => {
-    app.use('/api', bodyParser.text({ type: 'text/plain' }));
-    app.use('/api', bodyParser.json());
-
-    // use the ctvault header middleware
-    app.use('/api', CT.middleware.headers);
+    app.use(bodyParser.text({ type: 'text/plain' }));
+    app.use(bodyParser.json());
 
     // CORS support
     app.use(cors());
 
     app.use((req, res, next) => {
-      // res.header('Content-Security-Policy', 'script-src ctp.ngrok.io \'unsafe-inline\'; connect-src ctp.ngrok.io mc.commercetools.co mc-api.commercetools.co')
-      // res.header('Access-Control-Allow-Origin', '*')
       _.each(Object.keys(headers), key => {
         let value = headers[key]
         res.header(key, value)
       })
       next()
     })
+
+    // use the ctvault header middleware
+    app.use(CT.middleware.headers);
 
     // log each HTTP request
     app.use((req, res, next) => {
