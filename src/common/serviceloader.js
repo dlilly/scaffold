@@ -7,7 +7,6 @@ const pluralize = require('pluralize')
 const utils = require('./utils')
 const locale = require('locale-code')
 const pathresolver = require('path')
-const request = require('request-promise')
 
 const subscriberManager = require('./subscriptionManager')
 const logger = require('ctvault/lib/logger')
