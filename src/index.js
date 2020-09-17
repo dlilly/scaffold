@@ -19,10 +19,6 @@ const port = config.get('port') || 3001;
 let commonHandlers = require('./common/common_handlers')
 
 let headers = { 
-  "Strict-Transport-Security": "max-age=31536000", 
-  "X-XSS-Protection": "1; mode=block", 
-  "X-Content-Type-Options": "nosniff", 
-  "X-Frame-Options": "DENY", 
   "Content-Security-Policy": "\
     default-src 'self'; \
     script-src 'self' * 'unsafe-inline' 'unsafe-eval'; \
