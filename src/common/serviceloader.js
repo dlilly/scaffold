@@ -118,7 +118,6 @@ let loadDir = async dir => {
                         }
                     })
                     router.use('/', async (req, res, next) => {
-                        console.log(JSON.stringify(req.originalUrl))
                         let path = `${localPath}/${obj.localPath}`
 
                         if (req.path === '/') {
