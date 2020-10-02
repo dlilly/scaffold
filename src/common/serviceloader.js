@@ -136,7 +136,7 @@ let loadDir = async dir => {
                     break;
     
                 case 'mc':
-                    router.use(`/mc`, express.static(`${localPath}/${obj.localPath}`))
+                    router.use(`/`, express.static(`${localPath}/${obj.localPath}`))
                     router.use(`/:projectKey/${obj.name}`, (req, res) => {
                         let indexPath = pathresolver.resolve(`${localPath}/${obj.localPath}/index.html`)
                         console.log(indexPath)
