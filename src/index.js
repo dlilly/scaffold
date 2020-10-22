@@ -1,22 +1,9 @@
-// local utils
-global.__basedir = require('app-root-path');
-global.utils = require('./common/utils');
-global.config = require('./common/config');
-
 // npm packages
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const CT = require('ctvault');
 const express = require('express');
 const _ = require('lodash')
-
-const serviceLoader = require('./common/serviceloader');
-
-// express app setup
-const app = express();
-const port = config.get('port') || 3001;
-
-let commonHandlers = require('./common/common_handlers')
 
 let headers = { 
   "Content-Security-Policy": "\
@@ -30,6 +17,19 @@ let headers = {
 }
 
 module.exports = async servicesDir => {
+  // local utils
+  global.__basedir = require('app-root-path');
+  global.__appdir = `${servicesDir}/..`
+
+  global.utils = require('./common/utils');
+  global.config = require('./common/config');
+
+  // express app setup
+  const app = express();
+  const port = config.get('port') || 3001;
+
+  let commonHandlers = require('./common/common_handlers')
+
   app.listen(port, async () => {
     app.use(bodyParser.text({ type: 'text/plain' }));
     app.use(bodyParser.json());
@@ -62,7 +62,7 @@ module.exports = async servicesDir => {
     app.use('/ui', express.static(`${__dirname}/common/ui`));
 
     // load the services
-    app.use(await serviceLoader(servicesDir))
+    app.use(await require('./common/serviceloader')(servicesDir, app))
 
     // global error handler
     app.use(commonHandlers.error);

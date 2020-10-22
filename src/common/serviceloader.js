@@ -8,7 +8,6 @@ const utils = require('./utils')
 const locale = require('locale-code')
 const pathresolver = require('path')
 
-const subscriberManager = require('./subscriptionManager')
 const logger = require('ctvault/lib/logger')
 
 let routes = {
@@ -31,6 +30,7 @@ router.getHooks = () => _.flatten(_.concat([], Object.values(routes)))
 router.getHook = key => _.ff(router.getHooks(), hook => hook.key === key)
 
 let loadDir = async dir => {
+    const subscriberManager = require('./subscriptionManager')
     logger.info(`\tLoading services subdirectory at ${dir}`)
 
     let service = require(dir)
@@ -42,7 +42,7 @@ let loadDir = async dir => {
     }
 
     _.each(Object.keys(service), key => {
-        if (key === 'asyncInit' || key === 'key' || key === 'model') {
+        if (key === 'asyncInit' || key === 'key' || key === 'model' || key === 'typeDefs' || key === 'resolvers') {
             return
         }
         let objects = Array.isArray(service[key]) ? service[key] : [service[key]]
@@ -235,11 +235,26 @@ let compareProductDataModels = async (ct, service) =>
         )
     )
 
-module.exports = async serviceDir => {
+module.exports = async (serviceDir, app) => {
     logger.info(`Loading services directory at ${serviceDir}`)
-
-    if (fs.existsSync(serviceDir)) {
+    if (fs.existsSync(serviceDir)) {    
         await Promise.all(utils.file.getSubdirectories(serviceDir).map(loadDir))
+
+        let graphqlServices = _.filter(services, 'typeDefs')
+        if (graphqlServices.length > 0) {
+            const { ApolloServer } = require('apollo-server-express');
+            const { buildFederatedSchema } = require('@apollo/federation');
+
+            const server = new ApolloServer({
+                schema: buildFederatedSchema(_.map(graphqlServices, s => ({ 
+                    typeDefs: s.typeDefs, 
+                    resolvers: s.resolvers
+                }))),
+                context: ({ req }) => ({ ct: req.ct })  
+                // dataSources: () => ({ CompanyApi: new Company({ url: companyMsUrl }) })
+            });
+            server.applyMiddleware({ app })
+        }
     }
 
     // load the common services directory
