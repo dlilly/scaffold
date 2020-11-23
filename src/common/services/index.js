@@ -1,5 +1,7 @@
 const _ = require('lodash')
-const CT = require('ctvault')
+const CT = require('/Users/dave/work/ctvault'); 
+const PubSub = require('pubsub-js')
+// const CT = require('ctvault');
 
 let payloadGenerator = {
     extensions: (hook, data) => ({
@@ -59,6 +61,19 @@ let admin_microservices = [
         key: 'ensure-data-model',
         path: '/api/ensureDataModel',
         handle: async ({ ct }) => await Promise.all(Object.values(_.get(require('./model'), 'types')).map(ct.types.ensure))
+    },
+    {
+        key: 'admin-register-scheduled-job',
+        path: '/api/scheduled-jobs',
+        method: 'post',
+        // handle: async ({ data, ct }) => PubSub.publish('register-scheduled-job', data)
+        handle: async obj => PubSub.publish('register-scheduled-job', obj)
+    },
+    {
+        key: 'admin-delete-scheduled-job',
+        path: '/api/scheduled-jobs',
+        method: 'delete',
+        handle: async obj => PubSub.publish('delete-scheduled-job', obj)
     }
 ]
     

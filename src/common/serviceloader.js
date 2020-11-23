@@ -2,13 +2,15 @@ const express = require('express')
 const router = express.Router()
 const fs = require('fs-extra')
 const _ = require('lodash')
-const CT = require('ctvault')
+const CT = require('/Users/dave/work/ctvault'); 
+// const CT = require('ctvault');
 const pluralize = require('pluralize')
 const utils = require('./utils')
 const locale = require('locale-code')
 const pathresolver = require('path')
 
-const logger = require('ctvault/lib/logger')
+const logger = require('/Users/dave/work/ctvault/lib/logger');
+const jobManager = require('./jobManager');
 
 let routes = {
     extensions: [],
@@ -17,7 +19,8 @@ let routes = {
     subscriptions: [],
     ui: [],
     storefront: [],
-    mc: []
+    mc: [],
+    scheduled_jobs: []
 }
 
 let services = []
@@ -32,6 +35,8 @@ router.getHook = key => _.ff(router.getHooks(), hook => hook.key === key)
 let loadDir = async dir => {
     const subscriberManager = require('./subscriptionManager')
     logger.info(`\tLoading services subdirectory at ${dir}`)
+
+    const jobManager = require('./jobManager')
 
     let service = require(dir)
     service.key = _.last(dir.split('/'))
@@ -76,7 +81,8 @@ let loadDir = async dir => {
                 case 'admin_microservices':
                     let paths = Array.isArray(obj.path) ? obj.path : [obj.path]
                     _.each(paths, path => {
-                        router[obj.method || 'get'](
+                        let method = obj.method || 'get'
+                        router[method](
                             path,
                             async (req, res, next) => {
                                 req.getHook = router.getHook
@@ -142,6 +148,10 @@ let loadDir = async dir => {
                         console.log(indexPath)
                         res.sendFile(indexPath)
                     })
+                    break
+    
+                case 'scheduled_jobs':
+                    jobManager.addJob(obj)
                     break
     
                 default:
@@ -265,6 +275,15 @@ module.exports = async (serviceDir, app) => {
         cts.map(async ctinfo => {
             let ct = await CT.getClient(ctinfo.projectKey)
             if (!ct.expired) {
+                let scheduledJobs = await ct.customObjects.get({
+                    container: "config",
+                    key: "scheduled-jobs"
+                }) || []
+
+                _.each(scheduledJobs, jobName => {
+                    jobManager.schedule(jobName, ct)
+                })
+
                 let extensions = await ct.extensions.all()
                 await Promise.all(
                     extensions.map(async ext => {
@@ -283,6 +302,7 @@ module.exports = async (serviceDir, app) => {
 
     // load the /api route
     router.get('/api', (req, res) => res.json(router.getHooks()))
+    router.get('/foo', (req, res) => res.json({ bar: 'baz' }))
     router.use('/docs', express.static(`${__dirname}/../../docs`))
     return router
 }

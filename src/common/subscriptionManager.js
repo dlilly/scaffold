@@ -1,7 +1,8 @@
 // third party libs
 const _ = require('lodash')
 const { PubSub } = require('@google-cloud/pubsub');
-const CT = require('ctvault')
+// const CT = require('/Users/dave/work/ctvault'); 
+const CT = require('ctvault');
 
 let handlers = {}
 
