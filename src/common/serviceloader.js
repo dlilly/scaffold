@@ -9,8 +9,6 @@ const CT = require('ctvault');
 const pluralize = require('pluralize')
 const utils = require('./utils')
 
-const logger = require('/Users/dave/work/ctvault/lib/logger');
-
 const jobManager = require('./jobManager');
 
 let services = []
