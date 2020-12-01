@@ -1,7 +1,6 @@
 const _ = require('lodash')
-const CT = require('/Users/dave/work/ctvault'); 
 const PubSub = require('pubsub-js')
-// const CT = require('ctvault');
+const CT = require('ctvault');
 
 let payloadGenerator = {
     extensions: (hook, data) => ({
@@ -29,13 +28,13 @@ let payloadGenerator = {
 }
 
 let mapResourceTypeIds = obj => obj && _.map(Object.keys(obj), key => ({ resourceTypeId: key }))
+let publishObject = name => obj => PubSub.publish(name, obj)
 
-let serviceTypes = ['subscriptions', 'extensions']
 let admin_microservices = [
     {
         key: 'admin-project',
         path: '/api/project',
-        handle: async ({ data, ct }) => ({
+        handle: async ({ ct }) => ({
             extensions: await ct.extensions.get(),
             subscriptions: await ct.subscriptions.get()
         })
@@ -49,7 +48,7 @@ let admin_microservices = [
         key: 'admin-register-project',
         path: '/api/projects',
         method: 'post',
-        handle: async ({ data, ct }) => await CT.saveCredential(data.object)
+        handle: async ({ data }) => await CT.saveCredential(data.object)
     },
     {
         key: 'admin-kubernetes-liveness-probe',
@@ -66,23 +65,23 @@ let admin_microservices = [
         key: 'admin-register-scheduled-job',
         path: '/api/scheduled-jobs',
         method: 'post',
-        // handle: async ({ data, ct }) => PubSub.publish('register-scheduled-job', data)
-        handle: async obj => PubSub.publish('register-scheduled-job', obj)
+        handle: publishObject('register-scheduled-job')
     },
     {
         key: 'admin-delete-scheduled-job',
         path: '/api/scheduled-jobs',
         method: 'delete',
-        handle: async obj => PubSub.publish('delete-scheduled-job', obj)
+        handle: publishObject('delete-scheduled-job')
     }
 ]
     
+let serviceTypes = ['subscriptions', 'extensions']
 _.each(serviceTypes, type => {
     admin_microservices.push({
         key: `admin-register-${type}`,
         path: `/api/${type}`,
         method: 'post',
-        handle: async ({ data, ct, getHook }) => await ct[type].ensure(payloadGenerator[type](getHook(data.object.key), data.object))
+        handle: async ({ data, ct }) => await ct[type].ensure(payloadGenerator[type](router.routes[data.object.key], data.object))
     })
 
     admin_microservices.push({
